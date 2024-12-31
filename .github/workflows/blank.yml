@@ -40,10 +40,15 @@ jobs:
         cmake -A x64 -DCMAKE_INSTALL_PREFIX:PATH=.. -DCMAKE_TOOLCHAIN_FILE:FILEPATH=../vcpkg/scripts/buildsystems/vcpkg.cmake ..
         cmake --build . --target install --config Release
 
-    - name: Commit and push
+    - name: Move Built Files
+      run: |
+        mkdir -p ./build_output
+        cp ./telegram-bot-api/bin/* ./build_output/
+
+    - name: Commit and Push
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add ../bin/telegram-bot-api*
+        git add build_output/*
         git commit -m "Updated Windows binary"
         git push
