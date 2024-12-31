@@ -21,22 +21,28 @@ jobs:
     - name: Install Dependencies
       run: choco install -y git cmake
 
-    - name: Set up CMake
-      uses: lukka/get-cmake@latest
-
-    - name: Build the Project
+    - name: Clone Repositories and Install Vcpkg
       run: |
         git clone --recursive https://github.com/tdlib/telegram-bot-api.git
         cd telegram-bot-api
+        git clone https://github.com/Microsoft/vcpkg.git
+        cd vcpkg
+        ./bootstrap-vcpkg.bat
+        ./vcpkg.exe install gperf:x64-windows openssl:x64-windows zlib:x64-windows
+        cd ..
+
+    - name: Build the Project
+      run: |
+        Remove-Item build -Force -Recurse -ErrorAction SilentlyContinue
         mkdir build
         cd build
-        cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release ..
-        cmake --build . --config Release
+        cmake -A x64 -DCMAKE_INSTALL_PREFIX:PATH=.. -DCMAKE_TOOLCHAIN_FILE:FILEPATH=../vcpkg/scripts/buildsystems/vcpkg.cmake ..
+        cmake --build . --target install --config Release
 
     - name: Commit and push
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add build/Release/telegram-bot-api.exe
+        git add ../bin/telegram-bot-api*
         git commit -m "Updated Windows binary"
         git push
