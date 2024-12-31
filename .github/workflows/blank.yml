@@ -33,6 +33,7 @@ jobs:
 
     - name: Build the Project
       run: |
+        cd telegram-bot-api
         Remove-Item build -Force -Recurse -ErrorAction SilentlyContinue
         mkdir build
         cd build
