@@ -31,32 +31,32 @@ jobs:
 
     - name: Install x64 Dependencies
       run: |
-        cd telegram-bot-api/vcpkg
+        cd D:/a/windowsbotserver/telegram-bot-api/vcpkg
         ./vcpkg.exe install gperf:x64-windows openssl:x64-windows zlib:x64-windows
 
     - name: Build x64 Version
       run: |
-        cd ..
+        cd D:/a/windowsbotserver/telegram-bot-api
         Remove-Item build -Force -Recurse -ErrorAction SilentlyContinue
         mkdir build
         cd build
-        cmake -A x64 -DCMAKE_INSTALL_PREFIX:PATH=.. -DCMAKE_TOOLCHAIN_FILE:FILEPATH=./vcpkg/scripts/buildsystems/vcpkg.cmake ..
+        cmake -A x64 -DCMAKE_INSTALL_PREFIX:PATH=.. -DCMAKE_TOOLCHAIN_FILE:FILEPATH=../vcpkg/scripts/buildsystems/vcpkg.cmake ..
         cmake --build . --target install --config Release
         mkdir -p ../Windows-x64
         Copy-Item ../bin/* ../Windows-x64/ -Recurse
 
     - name: Install x86 Dependencies
       run: |
-        cd ../vcpkg
+        cd D:/a/windowsbotserver/telegram-bot-api/vcpkg
         ./vcpkg.exe install gperf:x86-windows openssl:x86-windows zlib:x86-windows
 
     - name: Build x86 Version
       run: |
-        cd ..
+        cd D:/a/windowsbotserver/telegram-bot-api
         Remove-Item build -Force -Recurse -ErrorAction SilentlyContinue
         mkdir build
         cd build
-        cmake -A Win32 -DCMAKE_INSTALL_PREFIX:PATH=.. -DCMAKE_TOOLCHAIN_FILE:FILEPATH=./vcpkg/scripts/buildsystems/vcpkg.cmake ..
+        cmake -A Win32 -DCMAKE_INSTALL_PREFIX:PATH=.. -DCMAKE_TOOLCHAIN_FILE:FILEPATH=../vcpkg/scripts/buildsystems/vcpkg.cmake ..
         cmake --build . --target install --config Release
         mkdir -p ../Windows-x32
         Copy-Item ../bin/* ../Windows-x32/ -Recurse
