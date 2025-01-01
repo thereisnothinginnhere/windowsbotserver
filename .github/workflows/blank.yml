@@ -28,27 +28,43 @@ jobs:
         git clone https://github.com/Microsoft/vcpkg.git
         cd vcpkg
         ./bootstrap-vcpkg.bat
-        ./vcpkg.exe install gperf:x64-windows openssl:x64-windows zlib:x64-windows
-        cd ..
 
-    - name: Build the Project
+    - name: Install x64 Dependencies
       run: |
-        cd telegram-bot-api
+        cd telegram-bot-api/vcpkg
+        ./vcpkg.exe install gperf:x64-windows openssl:x64-windows zlib:x64-windows
+
+    - name: Build x64 Version
+      run: |
+        cd ../..
         Remove-Item build -Force -Recurse -ErrorAction SilentlyContinue
         mkdir build
         cd build
         cmake -A x64 -DCMAKE_INSTALL_PREFIX:PATH=.. -DCMAKE_TOOLCHAIN_FILE:FILEPATH=../vcpkg/scripts/buildsystems/vcpkg.cmake ..
         cmake --build . --target install --config Release
+        mkdir -p ../Windows-x64
+        cp ../bin/* ../Windows-x64/
 
-    - name: Move Built Files
+    - name: Install x86 Dependencies
       run: |
-        mkdir -p ./build_output
-        cp ./telegram-bot-api/bin/* ./build_output/
+        cd ../vcpkg
+        ./vcpkg.exe install gperf:x86-windows openssl:x86-windows zlib:x86-windows
+
+    - name: Build x86 Version
+      run: |
+        cd ../..
+        Remove-Item build -Force -Recurse -ErrorAction SilentlyContinue
+        mkdir build
+        cd build
+        cmake -A Win32 -DCMAKE_INSTALL_PREFIX:PATH=.. -DCMAKE_TOOLCHAIN_FILE:FILEPATH=../vcpkg/scripts/buildsystems/vcpkg.cmake ..
+        cmake --build . --target install --config Release
+        mkdir -p ../Windows-x32
+        cp ../bin/* ../Windows-x32/
 
     - name: Commit and Push
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add build_output/*
-        git commit -m "Updated Windows binary"
+        git add Windows-x64/* Windows-x32/*
+        git commit -m "Updated Windows binaries for x64 and x32"
         git push
