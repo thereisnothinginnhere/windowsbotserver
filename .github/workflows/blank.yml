@@ -36,14 +36,14 @@ jobs:
 
     - name: Build x64 Version
       run: |
-        cd ../..
+        cd ..
         Remove-Item build -Force -Recurse -ErrorAction SilentlyContinue
         mkdir build
         cd build
-        cmake -A x64 -DCMAKE_INSTALL_PREFIX:PATH=.. -DCMAKE_TOOLCHAIN_FILE:FILEPATH=../vcpkg/scripts/buildsystems/vcpkg.cmake ..
+        cmake -A x64 -DCMAKE_INSTALL_PREFIX:PATH=.. -DCMAKE_TOOLCHAIN_FILE:FILEPATH=./vcpkg/scripts/buildsystems/vcpkg.cmake ..
         cmake --build . --target install --config Release
         mkdir -p ../Windows-x64
-        cp ../bin/* ../Windows-x64/
+        Copy-Item ../bin/* ../Windows-x64/ -Recurse
 
     - name: Install x86 Dependencies
       run: |
@@ -52,19 +52,19 @@ jobs:
 
     - name: Build x86 Version
       run: |
-        cd ../..
+        cd ..
         Remove-Item build -Force -Recurse -ErrorAction SilentlyContinue
         mkdir build
         cd build
-        cmake -A Win32 -DCMAKE_INSTALL_PREFIX:PATH=.. -DCMAKE_TOOLCHAIN_FILE:FILEPATH=../vcpkg/scripts/buildsystems/vcpkg.cmake ..
+        cmake -A Win32 -DCMAKE_INSTALL_PREFIX:PATH=.. -DCMAKE_TOOLCHAIN_FILE:FILEPATH=./vcpkg/scripts/buildsystems/vcpkg.cmake ..
         cmake --build . --target install --config Release
         mkdir -p ../Windows-x32
-        cp ../bin/* ../Windows-x32/
+        Copy-Item ../bin/* ../Windows-x32/ -Recurse
 
     - name: Commit and Push
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add Windows-x64/* Windows-x32/*
+        git add telegram-bot-api/Windows-x64/* telegram-bot-api/Windows-x32/*
         git commit -m "Updated Windows binaries for x64 and x32"
         git push
