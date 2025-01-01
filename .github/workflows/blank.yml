@@ -28,43 +28,36 @@ jobs:
         git clone https://github.com/Microsoft/vcpkg.git
         cd vcpkg
         ./bootstrap-vcpkg.bat
-
-    - name: Install x64 Dependencies
-      run: |
-        cd D:/a/windowsbotserver/telegram-bot-api/vcpkg
         ./vcpkg.exe install gperf:x64-windows openssl:x64-windows zlib:x64-windows
-
-    - name: Build x64 Version
+        cd ..
+    - name: Build the Project
       run: |
-        cd D:/a/windowsbotserver/telegram-bot-api
+        cd telegram-bot-api
         Remove-Item build -Force -Recurse -ErrorAction SilentlyContinue
         mkdir build
         cd build
         cmake -A x64 -DCMAKE_INSTALL_PREFIX:PATH=.. -DCMAKE_TOOLCHAIN_FILE:FILEPATH=../vcpkg/scripts/buildsystems/vcpkg.cmake ..
         cmake --build . --target install --config Release
-        mkdir -p ../Windows-x64
-        Copy-Item ../bin/* ../Windows-x64/ -Recurse
-
-    - name: Install x86 Dependencies
+    - name: Move Built Files
       run: |
-        cd D:/a/windowsbotserver/telegram-bot-api/vcpkg
-        ./vcpkg.exe install gperf:x86-windows openssl:x86-windows zlib:x86-windows
-
-    - name: Build x86 Version
+        mkdir -p ./Windowsx64
+        cp ./telegram-bot-api/bin/* ./Windowsx64/
+    - name: Build the Project
       run: |
-        cd D:/a/windowsbotserver/telegram-bot-api
+        cd telegram-bot-api
         Remove-Item build -Force -Recurse -ErrorAction SilentlyContinue
         mkdir build
         cd build
         cmake -A Win32 -DCMAKE_INSTALL_PREFIX:PATH=.. -DCMAKE_TOOLCHAIN_FILE:FILEPATH=../vcpkg/scripts/buildsystems/vcpkg.cmake ..
         cmake --build . --target install --config Release
-        mkdir -p ../Windows-x32
-        Copy-Item ../bin/* ../Windows-x32/ -Recurse
-
+    - name: Move Built Files
+      run: |
+        mkdir -p ./Windowsx32
+        cp ./telegram-bot-api/bin/* ./Windowsx32/
     - name: Commit and Push
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add telegram-bot-api/Windows-x64/* telegram-bot-api/Windows-x32/*
-        git commit -m "Updated Windows binaries for x64 and x32"
+        git add build_output/*
+        git commit -m "Updated Windows binary"
         git push
